@@ -11,6 +11,9 @@ import tensorflow as tf
 old_v = tf.logging.get_verbosity()
 tf.logging.set_verbosity(tf.logging.ERROR)
 
+# Imports for image manipulation
+import numpy as np
+from PIL import Image
 
 # Importing the MNIST Dataset
 from tensorflow.examples.tutorials.mnist import input_data
@@ -117,6 +120,23 @@ for i in range(n_iterations):
 
 # Once the training is complete, can run the session on the test images. This time keep_prob dropout rate of 1.0 is used to
 # ensure all units are active in the testing process
-
 test_accuracy = sess.run(accuracy, feed_dict={X: mnist.test.images, Y: mnist.test.labels, keep_prob:1.0})
 print("\nAccuracy on test set:", test_accuracy)
+
+while True:
+    # Get image file
+    imageName = input('Name of the file(eg: 1 or eg: 2): ')
+    imageName = "Images/data/" + imageName + ".png"
+    print(imageName)
+    img = np.invert(Image.open(imageName).convert('L')).ravel()
+
+    # Now that the image data is structured correctly, can run a session in the same way as previously, but this time
+    # only feeding in the single image for testing
+    prediction = sess.run(tf.argmax(output_layer,1), feed_dict={X: [img]})
+    print ("Prediction for test image:", np.squeeze(prediction))
+
+    # Continue or exit
+    sentinel = input('Would you like to continue? (type "yes" or "no"): ')
+
+    if sentinel == "no":
+        break
