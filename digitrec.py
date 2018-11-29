@@ -11,6 +11,7 @@ import tensorflow as tf
 old_v = tf.logging.get_verbosity()
 tf.logging.set_verbosity(tf.logging.ERROR)
 
+
 # Importing the MNIST Dataset
 from tensorflow.examples.tutorials.mnist import input_data
 
@@ -23,6 +24,7 @@ mnist = input_data.read_data_sets("MNIST_data/", one_hot=True) # y labels are oh
 n_train = mnist.train.num_examples # 55,000
 n_validation = mnist.validation.num_examples # 5000
 n_test = mnist.test.num_examples # 10,000
+
 
 # Defining the Neural Network Architecture
 
@@ -38,6 +40,7 @@ learning_rate = 1e-4
 n_iterations = 1000
 batch_size = 128
 dropout = 0.5
+
 
 # Building the TensorFlow Graph
 
@@ -82,3 +85,38 @@ output_layer = tf.matmul(layer_3, weights['out']) + biases['out']
 cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=Y, logits=output_layer))
 train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
 
+
+# Training and Testing
+
+# Define method of evaluating the accuracy so it can be printed out on mini-batches of data while it trains. These printed 
+# statements will allow to check that from the first iteration to the last, loss decreases and accuracy increases; 
+# they will also allow to track whether or not it has ran enough iterations to reach a consistent and optimal result
+correct_pred = tf.equal(tf.argmax(output_layer, 1), tf.argmax(Y, 1))
+accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
+
+#  Initialize a session for running the graph. This session will feed the network with training examples, and once trained, 
+# same graph can be feeded with new test examples to determine the accuracy of the model
+init = tf.global_variables_initializer()
+sess = tf.Session()
+sess.run(init)
+
+
+# At each training step, the parameters are adjusted slightly to try and reduce the loss for the next step. As the 
+# learning progresses, reduction in loss should should be ssen, and eventually it can stop training and use the 
+# network as a model for testing new data
+
+# Train on mini batches
+for i in range(n_iterations):
+    batch_x, batch_y = mnist.train.next_batch(batch_size)
+    sess.run(train_step, feed_dict={X: batch_x, Y: batch_y, keep_prob:dropout})
+
+    # Print loss and accuracy (per minibatch)
+    if i%100==0:
+        minibatch_loss, minibatch_accuracy = sess.run([cross_entropy, accuracy], feed_dict={X: batch_x, Y: batch_y, keep_prob:1.0})
+        print("Iteration", str(i), "\t| Loss =", str(minibatch_loss), "\t| Accuracy =", str(minibatch_accuracy))
+
+# Once the training is complete, can run the session on the test images. This time keep_prob dropout rate of 1.0 is used to
+# ensure all units are active in the testing process
+
+test_accuracy = sess.run(accuracy, feed_dict={X: mnist.test.images, Y: mnist.test.labels, keep_prob:1.0})
+print("\nAccuracy on test set:", test_accuracy)
