@@ -1,42 +1,23 @@
 # A python script that takes an image file containing a handwritten digit and identifies 
 # the digit using a supervised learning algorithm and the MNIST dataset.
 
-# Imports
-import numpy as np
-import math
+# Import tensorflow as tf
+import tensorflow as tf
+# Getting rid of warnings
+old_v = tf.logging.get_verbosity()
+tf.logging.set_verbosity(tf.logging.ERROR)
 
-# Building blocks of neural networks 
-class Neuron(object):
-   def __init__(self):
-       self.weights = np.array([1.0, 2.0])
-       self.bias = 0.0
+# Import input_data
+from tensorflow.examples.tutorials.mnist import input_data
 
-   def forward(self, inputs):
-       # Assuming that inputs and weights are 1-D numpy arrays and the bias is a number
-       a_cell_sum = np.sum(inputs * self.weights) + self.bias
+# Store the image data in the variable mnist 
+mnist = input_data.read_data_sets("MNIST_data/", one_hot=True) # y labels are oh-encoded
 
-       # This is the sigmoid activation function
-       result = 1.0 / (1.0 + math.exp(-a_cell_sum)) 
-       return result
+# Size of the dataset that was just imported. 
+# Looking at the num_examples for each of the three subsets, we can determine that the dataset 
+# has been split into 55,000 images for training, 5000 for validation, and 10,000 for testing.
+n_train = mnist.train.num_examples # 55,000
+n_validation = mnist.validation.num_examples # 5000
+n_test = mnist.test.num_examples # 10,000
 
-neuron = Neuron()
-output = neuron.forward(np.array([1,1]))
-
-print(output)
-
-# Retrieving training and test data
-
-# Import Numpy, keras and MNIST data
-import numpy as np 
-import matplotlib.pyplot as plt 
-from keras.datasets import mnist
-from keras.models import Sequential 
-from keras.layers.core import Dense,Dropout,Activation
-from keras.utils import np_utils
-
-# Retrieving the training and test data
-(X_train,y_train),(X_test,y_test)=mnist.load_data()
-print('X_train shape:',X_train.shape)
-print('X_test shape: ',X_test.shape)
-print('y_train shape:',y_train.shape)
-print('y_test shape: ',y_test.shape)
+tf.logging.set_verbosity(old_v)
