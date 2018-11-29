@@ -20,4 +20,17 @@ n_train = mnist.train.num_examples # 55,000
 n_validation = mnist.validation.num_examples # 5000
 n_test = mnist.test.num_examples # 10,000
 
-tf.logging.set_verbosity(old_v)
+# Defining the Neural Network Architecture
+
+# Store the number of units per layer in global variables
+n_input = 784   # input layer (28x28 pixels)
+n_hidden1 = 512 # 1st hidden layer
+n_hidden2 = 256 # 2nd hidden layer
+n_hidden3 = 128 # 3rd hidden layer
+n_output = 10   # output layer (0-9 digits)
+
+# Hyperparameters which will stay constant
+learning_rate = 1e-4
+n_iterations = 1000
+batch_size = 128
+dropout = 0.5
